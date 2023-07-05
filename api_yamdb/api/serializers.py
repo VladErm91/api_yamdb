@@ -30,6 +30,10 @@ class NotAdminSerializer(serializers.ModelSerializer):
         read_only_fields = ('role',)
 
 class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.username')
+    score = serializers.IntegerField(min_value=1, max_value=10)
+
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ['id', 'review_text', 'author', 'score', 'pub_date']
+        read_only_fields = ['id', 'author', 'pub_date']
