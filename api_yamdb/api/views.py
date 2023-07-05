@@ -4,7 +4,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from reviews.models import Review, User
-from .permissions import AdminOnly
+from .permissions import IsAdminOnly
 from .serializers import (NotAdminSerializer, ReviewSerializer,UsersSerializer)
 
 class ReviewViewSet(viewsets.ModelViewSet):
