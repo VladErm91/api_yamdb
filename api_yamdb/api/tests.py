@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIClient
-from reviews.models import Title, Review
+from reviews.models import Title, Review, User
 
 
 class ReviewCreateTestCase(TestCase):
@@ -9,7 +9,7 @@ class ReviewCreateTestCase(TestCase):
         self.client = APIClient()
 
         # Создание пользователя
-        self.user = get_user_model().objects.create_user(username='testuser', password='testpass')
+        self.user = User.objects.create_user(username='testuser', password='testpass')
         self.user.save()
 
         # Создание объекта Title
