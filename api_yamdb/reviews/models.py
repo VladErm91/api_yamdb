@@ -91,7 +91,7 @@ class User(AbstractUser):
         return self.username
 
 
-from reviews.validators import validate_title_year
+from reviews.validators import validate_year
 
 
 class Category(models.Model):
@@ -120,7 +120,7 @@ class Title(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     year = models.IntegerField(
-        validators=(validate_title_year,)
+        validators=(validate_year,)
     )
     category = models.ForeignKey(
         Category,
