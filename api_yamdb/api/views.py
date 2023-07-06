@@ -3,12 +3,40 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
 
-from reviews.models import Title, Review, User
+from reviews.models import Review, Category, Genre, Title, User
+from .serializers import (ReviewSerializer, CategorySerializer,
+                          GenreSerializer, TitleSerializer, TitleGETSerializer,NotAdminSerializer, UsersSerializer)
+from .permissions import IsAdminOnly, IsAdminOrReadOnly
+from .mixins import ModelMixinSet
+from .filters import TitleFilter
 
-from .permissions import IsAdminOnly
-from .serializers import (NotAdminSerializer, ReviewSerializer,UsersSerializer)
 
+
+
+class CategoryViewSet(ModelMixinSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GenreViewSet(ModelMixinSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    serializer_class = TitleSerializer
+    permission_classes = (IsAdminOrReadOnly | IsAdminOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TitleGETSerializer
+        return TitleSerializer
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
