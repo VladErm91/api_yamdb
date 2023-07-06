@@ -51,8 +51,6 @@ class TitleSerializer(serializers.ModelSerializer):
         serializer = TitleGETSerializer(title)
         return serializer.data
 
-from reviews.models import 
-
 
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
