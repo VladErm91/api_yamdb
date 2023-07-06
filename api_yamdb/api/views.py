@@ -6,11 +6,12 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Title, Review, User
 
-from .permissions import IsAdminOnly
-from .serializers import (NotAdminSerializer, ReviewSerializer,UsersSerializer,SignUpSerializer)
+from .permissions import (IsAdminOnly,IsAdminOrReadOnly,AdminModeratorAuthorPermission)
+from .serializers import (NotAdminSerializer, ReviewSerializer,UsersSerializer,GetTokenSerializer,SignUpSerializer)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -48,7 +49,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (AdminModeratorAuthorPermission,)
 
     def create(self, request, *args, **kwargs):
         title_id = kwargs.get('title_id')
@@ -67,14 +68,34 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class APIGetToken(APIView):
+    """
+    Получение JWT-токена в обмен на username и confirmation code.
+    """
+    def post(self, request):
+        serializer = GetTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        try:
+            user = User.objects.get(username=data['username'])
+        except User.DoesNotExist:
+            return Response(
+                {'username': 'Пользователь не найден!'},
+                status=status.HTTP_404_NOT_FOUND)
+        if data.get('confirmation_code') == user.confirmation_code:
+            token = RefreshToken.for_user(user).access_token
+            return Response({'token': str(token)},
+                            status=status.HTTP_200_OK)
+        return Response(
+            {'confirmation_code': 'Неверный код подтверждения!'},
+            status=status.HTTP_400_BAD_REQUEST)
+
+
 class APISignup(APIView):
     """
     Получить код подтверждения на переданный email. Права доступа: Доступно без
-    токена. Поля email и username должны быть уникальными. Пример тела запроса:
-    {
-        "email": "string",
-        "username": "string"
-    }
+    токена
     """
     permission_classes = (permissions.AllowAny,)
 
@@ -103,7 +124,7 @@ class APISignup(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         email_body = (
-            f'Доброе время суток, {user.username}.'
+            f'Добро пожаловать, {user.username}.'
             f'\nКод подтверждения для доступа к API: {user.confirmation_code}'
         )
         data = {
