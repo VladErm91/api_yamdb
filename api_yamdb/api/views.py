@@ -1,58 +1,72 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
-from rest_framework import permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
 
 from reviews.models import Review, Category, Genre, Title, User
-from .serializers import (ReviewSerializer, CategorySerializer,
-                          GenreSerializer, TitleSerializer, TitleGETSerializer,NotAdminSerializer,
-                          UsersSerializer,GetTokenSerializer,SignUpSerializer)
-from .permissions import IsAdminOnly, IsAdminOrReadOnly
 
 from .mixins import ModelMixinSet
 from .filters import TitleFilter
-from .permissions import (IsAdminOnly,IsAdminOrReadOnly,AdminModeratorAuthorPermission)
-from .serializers import (NotAdminSerializer, ReviewSerializer,UsersSerializer,
-                          GetTokenSerializer,SignUpSerializer)
+from .permissions import (IsAdminOnly, IsAdminOrReadOnly,
+                          AdminModeratorAuthorPermission)
+from .serializers import (ReviewSerializer, CategorySerializer,
+                          GenreSerializer, TitleSerializer,
+                          TitleGETSerializer, NotAdminSerializer,
+                          UsersSerializer, GetTokenSerializer,
+                          SignUpSerializer)
 
 
 class CategoryViewSet(ModelMixinSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', )
+    permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = PageNumberPagination
+    lookup_field = 'slug'
 
 
 class GenreViewSet(ModelMixinSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', )
+    permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = PageNumberPagination
+    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
-    permission_classes = (IsAdminOrReadOnly | IsAdminOnly,)
-    filter_backends = (DjangoFilterBackend,)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = TitleFilter
+    pagination_class = PageNumberPagination
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return TitleGETSerializer
         return TitleSerializer
 
+
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsAuthenticated, IsAdminOnly,)
+    permission_classes = (IsAdminOnly,)
     lookup_field = 'username'
     filter_backends = (SearchFilter, )
     search_fields = ('username', )
+    http_method_names = ('get', 'post', 'patch', 'delete')
 
     @action(
         methods=['GET', 'PATCH'],
@@ -91,7 +105,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         if Review.objects.filter(title=title, author=request.user).exists():
-            return Response({'detail': 'Review already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Review already exists'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
