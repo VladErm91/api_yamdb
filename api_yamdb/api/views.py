@@ -155,7 +155,7 @@ class APISignup(APIView):
         )
         try:
             email.send()
-        except:
+        except email.send() is False:
             return Response(
                 {'Письмо не удалось отправить'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE)
