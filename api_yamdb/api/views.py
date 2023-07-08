@@ -158,7 +158,7 @@ class APISignup(APIView):
         except:
             return Response(
                 {'Письмо не удалось отправить'},
-                status=status.HTTP_400_BAD_REQUEST)
+                status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
