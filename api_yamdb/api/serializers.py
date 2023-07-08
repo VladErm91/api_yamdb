@@ -65,18 +65,8 @@ class UsersSerializer(serializers.ModelSerializer):
         )
 
 
-class NotAdminSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
-        )
-        read_only_fields = ('role',)
+class NotAdminSerializer(UsersSerializer):
+    role = serializers.CharField(read_only=True)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
