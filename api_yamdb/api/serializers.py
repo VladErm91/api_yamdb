@@ -65,18 +65,9 @@ class UsersSerializer(serializers.ModelSerializer):
         )
 
 
-class NotAdminSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
-        )
-        read_only_fields = ('role',)
+class NotAdminSerializer(UsersSerializer):
+    role = serializers.CharField(read_only=True)
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
@@ -86,3 +77,29 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'review_text', 'author', 'score', 'pub_date']
         read_only_fields = ['id', 'author', 'pub_date']
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'username'
+        )
+
+
+class GetTokenSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True
+    )
+    confirmation_code = serializers.CharField(
+        required=True
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'confirmation_code'
+        )

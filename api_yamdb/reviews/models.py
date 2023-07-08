@@ -1,6 +1,15 @@
-from django.contrib.auth.models import AbstractUser
-from django.db import models
 from django.conf import settings
+
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.models import AbstractUser
+
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from reviews.validators import validate_year
+from .validators import validate_username
+
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
@@ -11,8 +20,6 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
-
-from .validators import validate_username
 
 USER = 'user'
 ADMIN = 'admin'
@@ -91,7 +98,15 @@ class User(AbstractUser):
         return self.username
 
 
-from reviews.validators import validate_year
+
+@receiver(post_save, sender=User)
+def post_save(sender, instance, created, **kwargs):
+    if created:
+        confirmation_code = default_token_generator.make_token(
+            instance
+        )
+        instance.confirmation_code = confirmation_code
+        instance.save()
 
 
 class Category(models.Model):
@@ -159,8 +174,11 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name='reviews')
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
+    title = models.ForeignKey(Title, on_delete=models.CASCADE,
+                              related_name='reviews')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,
+                               on_delete=models.CASCADE,
+                               related_name='reviews')
     review_text = models.TextField()
     score = models.IntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
@@ -168,5 +186,3 @@ class Review(models.Model):
 
     def __str__(self):
         return self.review_text[:50]
-
-
