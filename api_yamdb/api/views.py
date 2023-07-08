@@ -153,7 +153,12 @@ class APISignup(APIView):
             body=data['email_body'],
             to=[data['to_email']]
         )
-        email.send()
+        try:
+            email.send()
+        except:
+            return Response(
+                {'Письмо не удалось отправить'},
+                status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
