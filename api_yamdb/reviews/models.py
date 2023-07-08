@@ -98,6 +98,7 @@ class User(AbstractUser):
         return self.username
 
 
+
 @receiver(post_save, sender=User)
 def post_save(sender, instance, created, **kwargs):
     if created:
