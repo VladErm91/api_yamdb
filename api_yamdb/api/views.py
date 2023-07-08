@@ -1,16 +1,15 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets, request
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Review, Category, Genre, Title, User
 
@@ -138,14 +137,13 @@ class APIGetToken(APIView):
             {'confirmation_code': 'Неверный код подтверждения!'},
             status=status.HTTP_400_BAD_REQUEST)
 
-
 class APISignup(APIView):
     """
     Получить код подтверждения на переданный email. Права доступа: Доступно без
     токена
     """
-    permission_classes = (permissions.AllowAny,)
 
+    permission_classes = (permissions.AllowAny,)
     @staticmethod
     def send_email(data):
         email = EmailMessage(
@@ -153,10 +151,15 @@ class APISignup(APIView):
             body=data['email_body'],
             to=[data['to_email']]
         )
-        email.send()
-
+        try:
+            email.send()
+        except:
+            return Response(
+                {'Письмо не удалось отправить'},
+                status=status.HTTP_400_BAD_REQUEST)
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
+
         if User.objects.filter(username=request.data.get('username'),
                                email=request.data.get('email')).exists():
             user, created = User.objects.get_or_create(
@@ -167,7 +170,6 @@ class APISignup(APIView):
                 user.confirmation_code = confirmation_code
                 user.save()
                 return Response('Токен обновлен', status=status.HTTP_200_OK)
-
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         email_body = (
