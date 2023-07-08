@@ -1,4 +1,11 @@
-from rest_framework import serializers
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework import serializers,status,request
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainSerializer
+from rest_framework.response import Response
+
+
 
 from reviews.models import Review, Category, Genre, Title, User
 
@@ -65,18 +72,8 @@ class UsersSerializer(serializers.ModelSerializer):
         )
 
 
-class NotAdminSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
-        )
-        read_only_fields = ('role',)
+class NotAdminSerializer(UsersSerializer):
+    role = serializers.CharField(read_only=True)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -106,7 +103,6 @@ class GetTokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField(
         required=True
     )
-
     class Meta:
         model = User
         fields = (
