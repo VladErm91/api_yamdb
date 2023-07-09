@@ -1,56 +1,76 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.pagination import PageNumberPagination
-from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
 
+from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import Review, Category, Genre, Title, User, Comment
 
-from .mixins import ModelMixinSet
 from .filters import TitleFilter
-from .permissions import (IsAdminOnly, IsAdminOrReadOnly,
-                          AdminModeratorAuthorPermission)
-from .serializers import (ReviewSerializer, CategorySerializer,
-                          GenreSerializer, TitleSerializer,
-                          TitleGETSerializer, NotAdminSerializer,
-                          UsersSerializer, GetTokenSerializer,
-                          SignUpSerializer, CommentSerializer)
+from .mixins import ModelMixinSet
+from .permissions import (
+    IsAdminOnly,
+    IsAdminOrReadOnly,
+    AdminModeratorAuthorPermission
+)
+from .serializers import (
+    ReviewSerializer,
+    CategorySerializer,
+    GenreSerializer,
+    TitleSerializer,
+    TitleGETSerializer,
+    NotAdminSerializer,
+    UsersSerializer,
+    GetTokenSerializer,
+    SignUpSerializer,
+    CommentSerializer
+)
 
 
 class CategoryViewSet(ModelMixinSet):
+    """
+    Представление для просмотра и изменения экземпляров категории.
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', )
+    search_fields = ('name',)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
 
 
 class GenreViewSet(ModelMixinSet):
+    """
+    Представление для просмотра и изменения экземпляров жанра.
+    """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', )
+    search_fields = ('name',)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """
+    Представление для просмотра и изменения экземпляров тайтла.
+    """
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     pagination_class = PageNumberPagination
 
@@ -61,12 +81,15 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    """
+    Представление для просмотра и изменения экземпляров пользователей.
+    """
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (IsAdminOnly,)
     lookup_field = 'username'
-    filter_backends = (SearchFilter, )
-    search_fields = ('username', )
+    filter_backends = (SearchFilter,)
+    search_fields = ('username',)
     http_method_names = ('get', 'post', 'patch', 'delete')
 
     @action(
@@ -94,6 +117,9 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    Представление для просмотра и изменения экземпляров отзывов.
+    """
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (AdminModeratorAuthorPermission,)
@@ -121,6 +147,7 @@ class APIGetToken(APIView):
     """
     Получение JWT-токена в обмен на username и confirmation code.
     """
+
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -188,7 +215,11 @@ class APISignup(APIView):
         self.send_email(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class CommentViewSet(viewsets.ModelViewSet):
+    """
+    Представление для просмотра и изменения экземпляров комментариев.
+    """
     serializer_class = CommentSerializer
 
     def get_queryset(self):

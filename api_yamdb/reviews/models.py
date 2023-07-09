@@ -1,9 +1,6 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
-
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import AbstractUser
-
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -45,20 +42,9 @@ class User(AbstractUser):
         default=USER,
         blank=True
     )
-    bio = models.TextField(
-        'биография',
-        blank=True,
-    )
-    first_name = models.CharField(
-        'имя',
-        max_length=150,
-        blank=True
-    )
-    last_name = models.CharField(
-        'фамилия',
-        max_length=150,
-        blank=True
-    )
+    bio = models.TextField('биография', blank=True)
+    first_name = models.CharField('имя', max_length=150, blank=True)
+    last_name = models.CharField('фамилия', max_length=150, blank=True)
     confirmation_code = models.CharField(
         'код подтверждения',
         max_length=255,
@@ -91,9 +77,7 @@ class User(AbstractUser):
 @receiver(post_save, sender=User)
 def post_save(sender, instance, created, **kwargs):
     if created:
-        confirmation_code = default_token_generator.make_token(
-            instance
-        )
+        confirmation_code = default_token_generator.make_token(instance)
         instance.confirmation_code = confirmation_code
         instance.save()
 
@@ -123,19 +107,14 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    year = models.IntegerField(
-        validators=(validate_year,)
-    )
+    year = models.IntegerField(validators=(validate_year,))
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
         related_name='titles'
     )
-    genre = models.ManyToManyField(
-        Genre,
-        through='GenreTitle'
-    )
+    genre = models.ManyToManyField(Genre, through='GenreTitle')
 
     class Meta:
         ordering = ('name',)
@@ -145,14 +124,8 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE
-    )
-    genre = models.ForeignKey(
-        Genre,
-        on_delete=models.CASCADE,
-    )
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Соответствие жанра и произведения'
@@ -181,10 +154,24 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='comments', verbose_name='Отзыв')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор комментария')
-    text = models.TextField(verbose_name='Текст комментария')
-    pub_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации комментария')
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Отзыв'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор комментария'
+    )
+    text = models.TextField(
+        verbose_name='Текст комментария'
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата публикации комментария'
+    )
 
     class Meta:
         ordering = ['pub_date']
