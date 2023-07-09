@@ -221,6 +221,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     Представление для просмотра и изменения экземпляров комментариев.
     """
     serializer_class = CommentSerializer
+    permission_classes = (AdminModeratorAuthorPermission,)
 
     def get_queryset(self):
         review_id = self.kwargs['review_id']
@@ -231,12 +232,3 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         serializer.save(author=self.request.user, review=review)
-
-    def get_permissions(self):
-        if self.request.method in ['GET']:
-            return [permissions.AllowAny()]
-        if self.request.method in ['POST']:
-            return [permissions.IsAuthenticated()]
-        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            return [AdminModeratorAuthorPermission()]
-        return [permissions.IsAuthenticated()]
