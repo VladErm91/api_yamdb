@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import AbstractUser
@@ -9,17 +10,6 @@ from django.dispatch import receiver
 
 from reviews.validators import validate_year
 from .validators import validate_username
-
-
-class Title(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField(null=True, blank=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    modification_date = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
-
 
 USER = 'user'
 ADMIN = 'admin'
@@ -96,7 +86,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
 
 
 @receiver(post_save, sender=User)
@@ -179,10 +168,28 @@ class Review(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
                                on_delete=models.CASCADE,
                                related_name='reviews')
-    review_text = models.TextField()
+    text = models.TextField()
     score = models.IntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ('title', 'author')
+
     def __str__(self):
-        return self.review_text[:50]
+        return self.text[:50]
+
+
+class Comment(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='comments', verbose_name='Отзыв')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор комментария')
+    text = models.TextField(verbose_name='Текст комментария')
+    pub_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации комментария')
+
+    class Meta:
+        ordering = ['pub_date']
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def __str__(self):
+        return self.text[:50]

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviews.models import Review, Category, Genre, Title, User
+from reviews.models import Review, Category, Genre, Title, User, Comment
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -75,7 +75,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ['id', 'review_text', 'author', 'score', 'pub_date']
+        fields = ['id', 'text', 'author', 'score', 'pub_date']
         read_only_fields = ['id', 'author', 'pub_date']
 
 
@@ -103,3 +103,11 @@ class GetTokenSerializer(serializers.ModelSerializer):
             'username',
             'confirmation_code'
         )
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment

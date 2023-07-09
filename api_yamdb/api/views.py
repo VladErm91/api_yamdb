@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -12,7 +13,7 @@ from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-from reviews.models import Review, Category, Genre, Title, User
+from reviews.models import Review, Category, Genre, Title, User, Comment
 
 from .mixins import ModelMixinSet
 from .filters import TitleFilter
@@ -22,7 +23,7 @@ from .serializers import (ReviewSerializer, CategorySerializer,
                           GenreSerializer, TitleSerializer,
                           TitleGETSerializer, NotAdminSerializer,
                           UsersSerializer, GetTokenSerializer,
-                          SignUpSerializer)
+                          SignUpSerializer, CommentSerializer)
 
 
 class CategoryViewSet(ModelMixinSet):
@@ -186,3 +187,25 @@ class APISignup(APIView):
         }
         self.send_email(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        review_id = self.kwargs['review_id']
+        review = get_object_or_404(Review, id=review_id)
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        serializer.save(author=self.request.user, review=review)
+
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            return [permissions.AllowAny()]
+        if self.request.method in ['POST']:
+            return [permissions.IsAuthenticated()]
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [AdminModeratorAuthorPermission()]
+        return [permissions.IsAuthenticated()]
