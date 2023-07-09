@@ -14,7 +14,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from reviews.models import Review, Category, Genre, Title, User, Comment
+from reviews.models import Review, Category, Genre, Title, User
 
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
