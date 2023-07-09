@@ -19,21 +19,33 @@ class IsAdminOrReadOnly(BasePermission):
     message = 'Доступ только у администратора.'
 
     def has_permission(self, request, view):
-        return (request.method in SAFE_METHODS
-                or (request.user.is_authenticated and request.user.is_admin))
+        return (
+                request.method in SAFE_METHODS
+                or (request.user.is_authenticated and request.user.is_admin)
+        )
 
 
 class AdminModeratorAuthorPermission(BasePermission):
+    """
+    Определение прав доступа:
+        - безопасные методы (GET, HEAD или OPTIONS) разрешены для всех
+        - для всех остальных методов пользователь должен быть аутентифицирован
+        - для методов, воздействующих на объект, пользователь должен быть:
+            - автором объекта
+            - модератором
+            - администратором
+    """
+
     def has_permission(self, request, view):
         return (
-            request.method in SAFE_METHODS
-            or request.user.is_authenticated
+                request.method in SAFE_METHODS
+                or request.user.is_authenticated
         )
 
     def has_object_permission(self, request, view, obj):
         return (
-            request.method in SAFE_METHODS
-            or obj.author == request.user
-            or request.user.is_moderator
-            or request.user.is_admin
+                request.method in SAFE_METHODS
+                or obj.author == request.user
+                or request.user.is_moderator
+                or request.user.is_admin
         )

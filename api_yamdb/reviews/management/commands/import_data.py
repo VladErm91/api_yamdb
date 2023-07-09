@@ -1,6 +1,7 @@
 from csv import DictReader
 
 from django.core.management import BaseCommand
+
 from reviews.models import (Comment, Review, Category, Genre,
                             Title, User, GenreTitle)
 
@@ -9,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         for row in DictReader(
-            open('./static/data/users.csv')
+                open('./static/data/users.csv')
         ):
             user = User(
                 id=row['id'], username=row['username'],
@@ -19,19 +20,19 @@ class Command(BaseCommand):
             )
             user.save()
         for row in DictReader(
-            open('./static/data/category.csv')
+                open('./static/data/category.csv')
         ):
             category = Category(
                 id=row['id'], name=row['name'], slug=row['slug']
             )
             category.save()
         for row in DictReader(
-            open('./static/data/genre.csv')
+                open('./static/data/genre.csv')
         ):
             genre = Genre(id=row['id'], name=row['name'], slug=row['slug'])
             genre.save()
         for row in DictReader(
-            open('./static/data/titles.csv')
+                open('./static/data/titles.csv')
         ):
             title = Title(
                 id=row['id'], name=row['name'],
@@ -39,7 +40,7 @@ class Command(BaseCommand):
             )
             title.save()
         for row in DictReader(
-            open('./static/data/review.csv')
+                open('./static/data/review.csv')
         ):
             review = Review(
                 id=row['id'], title_id=row['title_id'],
@@ -48,7 +49,7 @@ class Command(BaseCommand):
             )
             review.save()
         for row in DictReader(
-            open('./static/data/comments.csv')
+                open('./static/data/comments.csv')
         ):
             comment = Comment(
                 id=row['id'], review_id=row['review_id'],
@@ -57,7 +58,7 @@ class Command(BaseCommand):
             )
             comment.save()
         for row in DictReader(
-            open('./static/data/genre_title.csv')
+                open('./static/data/genre_title.csv')
         ):
             genre_title = GenreTitle(
                 id=row['id'], title_id=row['title_id'],
