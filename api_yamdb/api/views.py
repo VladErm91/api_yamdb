@@ -1,9 +1,16 @@
 from django.contrib.auth.tokens import default_token_generator
+from rest_framework.authtoken.models import Token
+from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
+from django.core import mail
+
+
+
+
 
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
@@ -190,6 +197,11 @@ class APISignup(APIView):
                 {'Письмо не удалось отправить'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
+    def token_generator(self, user):
+        confirmation_code = default_token_generator.make_token(user=user)
+        return {'user': user,
+                'confirmation_code': confirmation_code}
+
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         if User.objects.filter(username=request.data.get('username'),
@@ -198,8 +210,7 @@ class APISignup(APIView):
                 username=request.data.get('username')
             )
             if created is False:
-                confirmation_code = default_token_generator.make_token(user)
-                user.confirmation_code = confirmation_code
+                self.token_generator(user)
                 user.save()
                 return Response('Токен обновлен', status=status.HTTP_200_OK)
 
@@ -216,6 +227,7 @@ class APISignup(APIView):
         }
         self.send_email(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 class CommentViewSet(viewsets.ModelViewSet):
