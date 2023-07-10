@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 from reviews.validators import validate_year
 from tests.fixtures.fixture_user import user
@@ -137,12 +138,17 @@ class Review(models.Model):
                                on_delete=models.CASCADE,
                                related_name='reviews')
     text = models.TextField()
-    score = models.IntegerField()
+    score = models.PositiveSmallIntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def clean_score(self):
+        if self.score < 1 or self.score > 10:
+            raise ValidationError("Оценка должна быть от 1 до 10.")
+
     class Meta:
         unique_together = ('title', 'author')
+        verbose_name = 'Отзывы'
 
     def __str__(self):
         return self.text[:50]
