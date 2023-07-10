@@ -77,14 +77,6 @@ class User(AbstractUser):
         return self.username
 
 
-@receiver(post_save, sender=User)
-def post_save(sender, instance, created, **kwargs):
-    if created:
-        confirmation_code = default_token_generator.make_token(instance)
-        instance.confirmation_code = confirmation_code
-        instance.save()
-
-
 class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=50, unique=True)
