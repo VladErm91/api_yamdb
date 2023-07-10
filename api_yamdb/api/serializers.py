@@ -56,7 +56,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'genre', 'category')
+        fields = ('name', 'year', 'description', 'genre', 'rating', 'category')
 
     def to_representation(self, title):
         serializer = TitleGETSerializer(title)
