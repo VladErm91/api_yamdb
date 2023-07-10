@@ -6,20 +6,23 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from reviews.validators import validate_year
+from tests.fixtures.fixture_user import user
 from .validators import validate_username
+
+
 
 USER = 'user'
 ADMIN = 'admin'
 MODERATOR = 'moderator'
 
-ROLE_CHOICES = [
-    (USER, USER),
-    (ADMIN, ADMIN),
-    (MODERATOR, MODERATOR),
-]
-
-
 class User(AbstractUser):
+
+    ROLE_CHOICES = [
+        (USER, USER),
+        (ADMIN, ADMIN),
+        (MODERATOR, MODERATOR),
+    ]
+
     username = models.CharField(
         'никнейм',
         validators=(validate_username,),
@@ -54,16 +57,16 @@ class User(AbstractUser):
     )
 
     @property
-    def is_user(self):
-        return self.role == USER
+    def is_user(user):
+        return user.role == USER
 
     @property
-    def is_admin(self):
-        return self.role == ADMIN or self.is_superuser
+    def is_admin(user):
+        return user.role == ADMIN or user.is_superuser
 
     @property
-    def is_moderator(self):
-        return self.role == MODERATOR
+    def is_moderator(user):
+        return user.role == MODERATOR
 
     class Meta:
         ordering = ('id',)
