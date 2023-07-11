@@ -114,7 +114,7 @@ class APISignup(APIView):
         if User.objects.filter(username=request.data.get('username'),
                                email=request.data.get('email')).exists():
             user = get_object_or_404(
-                User, username=request.data.get('username'))                    
+                User, username=request.data.get('username'))
             self.token_generator(user)
             user.save()
             return Response('Токен обновлен', status=status.HTTP_200_OK)
