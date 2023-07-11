@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviews.models import Review, Category, Genre, Title, User, Comment
+from reviews.models import Review, Category, Genre, Title, Comment
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -63,25 +63,6 @@ class TitleSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-class UsersSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для модели User.
-    """
-
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
-
-
-class NotAdminSerializer(UsersSerializer):
-    """
-    Сериализатор для модели User.
-    Поле 'role' доступно только для чтения.
-    """
-    role = serializers.CharField(read_only=True)
-
-
 class ReviewSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Review.
@@ -94,28 +75,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         read_only_fields = ['id', 'author', 'pub_date']
-
-
-class SignUpSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для регистрации новых пользователей.
-    """
-
-    class Meta:
-        model = User
-        fields = ('email', 'username')
-
-
-class GetTokenSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для получения токена.
-    """
-    username = serializers.CharField(required=True)
-    confirmation_code = serializers.CharField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
 
 
 class CommentSerializer(serializers.ModelSerializer):
