@@ -1,81 +1,9 @@
 from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 
 from reviews.validators import validate_year
-from tests.fixtures.fixture_user import user
-from .validators import validate_username
-
-
-USER = 'user'
-ADMIN = 'admin'
-MODERATOR = 'moderator'
-
-
-class User(AbstractUser):
-
-    ROLE_CHOICES = [
-        (USER, USER),
-        (ADMIN, ADMIN),
-        (MODERATOR, MODERATOR),
-    ]
-
-    username = models.CharField(
-        'никнейм',
-        validators=(validate_username,),
-        max_length=150,
-        unique=True,
-        blank=False,
-        null=False
-    )
-    email = models.EmailField(
-        'электронная почта',
-        max_length=254,
-        unique=True,
-        blank=False,
-        null=False
-    )
-    role = models.CharField(
-        'роль',
-        max_length=20,
-        choices=ROLE_CHOICES,
-        default=USER,
-        blank=True
-    )
-    bio = models.TextField('биография', blank=True)
-    first_name = models.CharField('имя', max_length=150, blank=True)
-    last_name = models.CharField('фамилия', max_length=150, blank=True)
-    confirmation_code = models.CharField(
-        'код подтверждения',
-        max_length=255,
-        null=True,
-        blank=False,
-        default='XXXX'
-    )
-
-    @property
-    def is_user(user):
-        return user.role == USER
-
-    @property
-    def is_admin(user):
-        return user.role == ADMIN or user.is_superuser
-
-    @property
-    def is_moderator(user):
-        return user.role == MODERATOR
-
-    class Meta:
-        ordering = ('id',)
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
-    def __str__(self):
-        return self.username
+from users.models import User
 
 
 class Category(models.Model):
