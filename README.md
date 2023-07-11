@@ -47,6 +47,6 @@ python manage.py runserver
 
 Авторы в рамках учебного курса ЯП Python - разработчик бекенда:
 
-- :white_check_mark: [✅ Ермолаев Влад (Тимлид - разработчик 1)](https://github.com/VladErm91)
-- :white_check_mark: [✅ Мамулина Диана (разработчик 2)](https://github.com/DianaMamulyan)
-- :white_check_mark: [✅ Бондарчук Евгений (разработчик 3)](https://github.com/eugenebondarchuk)
+- :white_check_mark: [Ермолаев Влад (Тимлид - разработчик 1)](https://github.com/VladErm91)
+- :white_check_mark: [Мамулина Диана (разработчик 2)](https://github.com/DianaMamulyan)
+- :white_check_mark: [Бондарчук Евгений (разработчик 3)](https://github.com/eugenebondarchuk)
