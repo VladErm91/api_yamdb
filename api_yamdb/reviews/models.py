@@ -7,10 +7,11 @@ from users.models import User
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(max_length=200, verbose_name='Hазвание')
+    slug = models.SlugField(max_length=50, unique=True, verbose_name='Slug')
 
     class Meta:
+        verbose_name = 'Категория'
         ordering = ('name',)
 
     def __str__(self):
@@ -18,10 +19,11 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(max_length=200, verbose_name='Hазвание')
+    slug = models.SlugField(max_length=50, unique=True, verbose_name='Slug')
 
     class Meta:
+        verbose_name = 'Жанр'
         ordering = ('name',)
 
     def __str__(self):
@@ -29,18 +31,27 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField(null=True, blank=True)
-    year = models.IntegerField(validators=(validate_year,))
+    name = models.CharField(max_length=200, verbose_name='Hазвание',)
+    description = models.TextField(blank=True, verbose_name='Описание')
+    year = models.IntegerField(
+        validators=(validate_year,),
+        verbose_name='Год выпуска'
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='titles'
+        related_name='titles',
+        verbose_name='Категория'
     )
-    genre = models.ManyToManyField(Genre, through='GenreTitle')
+    genre = models.ManyToManyField(
+        Genre,
+        through='GenreTitle',
+        verbose_name='Жанр'
+    )
 
     class Meta:
+        verbose_name = 'Произведение'
         ordering = ('name',)
 
     def __str__(self):
@@ -48,8 +59,16 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Произведение'
+    )
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        verbose_name='Жанр'
+    )
 
     class Meta:
         verbose_name = 'Соответствие жанра и произведения'
