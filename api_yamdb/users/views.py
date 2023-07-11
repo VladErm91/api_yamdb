@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -112,13 +113,10 @@ class APISignup(APIView):
         serializer = SignUpSerializer(data=request.data)
         if User.objects.filter(username=request.data.get('username'),
                                email=request.data.get('email')).exists():
-            user, created = User.objects.get_or_create(
-                username=request.data.get('username')
-            )
-            if created is False:
-                self.token_generator(user)
-                user.save()
-                return Response('Токен обновлен', status=status.HTTP_200_OK)
+            user = get_object_or_404(User, username=request.data.get('username'))
+            self.token_generator(user)
+            user.save()
+            return Response('Токен обновлен', status=status.HTTP_200_OK)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         code = self.token_generator(user)
