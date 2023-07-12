@@ -4,12 +4,10 @@ from django.db import models
 from reviews.validators import validate_username
 
 
-USER = 'user'
-ADMIN = 'admin'
-MODERATOR = 'moderator'
-
-
 class User(AbstractUser):
+    USER = 'user'
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
 
     ROLE_CHOICES = [
         (USER, USER),
@@ -46,21 +44,20 @@ class User(AbstractUser):
         'код подтверждения',
         max_length=255,
         null=True,
-        blank=False,
-        default='XXXX'
+        blank=False
     )
 
     @property
     def is_user(user):
-        return user.role == USER
+        return user.role == User.USER
 
     @property
     def is_admin(user):
-        return user.role == ADMIN or user.is_superuser
+        return user.role == User.ADMIN or user.is_superuser
 
     @property
     def is_moderator(user):
-        return user.role == MODERATOR
+        return user.role == User.MODERATOR
 
     class Meta:
         ordering = ('id',)
