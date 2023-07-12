@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.contrib.admin.options import TabularInline
 
 from users.models import User
+
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):

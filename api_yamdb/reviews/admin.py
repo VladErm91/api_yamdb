@@ -3,6 +3,7 @@ from django.contrib.admin.options import TabularInline
 
 from .models import Category, Genre, GenreTitle, Review, Title, Comment
 
+
 class GenreTitleoInline(TabularInline):
     model = GenreTitle
     min_num = 1
