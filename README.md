@@ -52,10 +52,8 @@ python manage.py runserver
 ### Необходимые переменные среды (.env)
 
 ```
-
 SECRET_KEY = ''
 DEBUG = False
-
 ```
 Авторы в проекта:
 
