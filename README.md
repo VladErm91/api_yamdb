@@ -54,8 +54,8 @@ python manage.py runserver
 
 ```
 
-SECRET_KEY=
-DEBUG=
+SECRET_KEY = ''
+DEBUG = False
 
 ```
 Авторы в проекта:
