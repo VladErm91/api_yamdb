@@ -31,20 +31,17 @@ git clone https://github.com/your_username/django_reviews_app.git
 2.  Установите зависимости:
 
 ```bash
-Copy code
 pip install -r requirements.txt
 ```
 
 3. Примените миграции Django:
 
 ```bash
-Copy code
 python manage.py migrate
 ```
 4. Запустите сервер разработки Django:
 
 ```bash
-Copy code
 python manage.py runserver
 - Ваше приложение теперь должно быть доступно по адресу http://localhost:8000.
 ```
