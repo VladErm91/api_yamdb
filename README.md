@@ -52,9 +52,12 @@ python manage.py runserver
 
 ### Необходимые переменные среды (.env)
 
-- SECRET_KEY
-- DEBUG
+```
 
+SECRET_KEY=
+DEBUG=
+
+```
 Авторы в проекта:
 
 - :white_check_mark: [Ермолаев Влад (Тимлид - разработчик 1)](https://github.com/VladErm91)
