@@ -4,7 +4,6 @@
 ![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white) 
 ![DjangoREST](https://img.shields.io/badge/DJANGO-REST-ff1709?style=for-the-badge&logo=django&logoColor=white&color=ff1709&labelColor=gray)
 
-## Описание
 Django Reviews App - это проект для публикации отзывов о фильмах, книгах и музыке. 
 С его помощью пользователи могут делиться своими отзывами, оценивать и комментировать отзывы других пользователей.
 
